@@ -37,7 +37,7 @@ extern int trace_level;
 extern int trace_to_logcat;
 extern long long unsigned int sensors_mask;
 
-#define SMI230_DATA_SYNC
+//#define SMI230_DATA_SYNC
 
 #define SOLUTION_MDOF       0
 #define SOLUTION_ECOMPASS   1

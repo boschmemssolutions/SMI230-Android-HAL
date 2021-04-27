@@ -15,7 +15,7 @@ For more information please refer to [HAL sensors-1.0](https://source.android.co
 SMI230 HAL supports data synchronization feature of SMI230 sensor only and shall be used with [SMI230 kernel driver](https://github.com/boschmemssolutions/SMI230-Linux-Driver) based on Linux Input Framework.
 
 ## License <a name=License></a>
-See [LICENSE](LICENSE) file
+See [LICENSE](smi230/LICENSE) file
 
 ## Architecture <a name=Architecture></a>
 ```
