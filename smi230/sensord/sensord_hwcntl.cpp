@@ -44,7 +44,7 @@
  * 3nd byte major version of driver which this HAL is based on
  * 4nd byte minor version of driver which this HAL is based on
  */
-uint8_t HAL_ver[4] = { 0, 1, 0, 3 };
+uint8_t HAL_ver[4] = { 0, 2, 0, 5 };
 
 #define UNUSED_SENSOR_T(sensor_name) \
 	{	.name = sensor_name,\

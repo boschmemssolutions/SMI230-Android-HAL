@@ -39,6 +39,26 @@
 #define CONVERT_MAG (0.1)
 #define CONVERT_ORI (57.2958)
 
+#define CONVERT_ACC_2G (0.000598755)
+#define CONVERT_ACC_4G (0.001197510)
+#define CONVERT_ACC_8G (0.002395020)
+#define CONVERT_ACC_16G (0.004790039)
+
+#define CONVERT_GYRO_125DPS (0.0038147)
+#define CONVERT_GYRO_250DPS (0.0076294)
+#define CONVERT_GYRO_500DPS (0.0152588)
+#define CONVERT_GYRO_1000DPS (0.0305176)
+#define CONVERT_GYRO_2000DPS (0.0610352)
+
+#define CONVERT_GYRO_125_RADPS (0.00006657903)
+#define CONVERT_GYRO_250_RADPS (0.00013315805)
+#define CONVERT_GYRO_500_RADPS (0.00026631611)
+#define CONVERT_GYRO_1000_RADPS (0.00053263222)
+#define CONVERT_GYRO_2000_RADPS (0.00106526444)
+
+static float convert_acc;
+static float convert_gyro;
+
 #define HAS_ACC 0x1
 #define HAS_MAG 0x2
 #define HAS_GYR 0x4
@@ -534,11 +554,31 @@ void sensord_algo_process(BoschSensor *boschsensor)
                 switch(library_in_package[j].sensor_id)
                 {
                     case BSX_INPUT_ID_ACCELERATION:
+			switch(accl_range)
+			{
+				case ACC_CHIP_RANGCONF_2G:
+					convert_acc = CONVERT_ACC_2G;
+					break;
+				case ACC_CHIP_RANGCONF_4G:
+					convert_acc = CONVERT_ACC_4G;
+					break;
+				case ACC_CHIP_RANGCONF_8G:
+					convert_acc = CONVERT_ACC_8G;
+					break;
+				case ACC_CHIP_RANGCONF_16G:
+					convert_acc = CONVERT_ACC_16G;
+					break;
+				default:
+					PERR("error accel range config");
+					continue;
+			}
+			PINFO("ACC range %d, convert %f", accl_range, convert_acc);
+
                         p_event->sensor = BSX_SENSOR_ID_ACCELEROMETER;
                         p_event->type = SENSOR_TYPE_ACCELEROMETER;
-                        p_event->acceleration.x = library_in_package[j].content_p[0].lw.mslw.sli * CONVERT_ACC;
-                        p_event->acceleration.y = library_in_package[j].content_p[1].lw.mslw.sli * CONVERT_ACC;
-                        p_event->acceleration.z = library_in_package[j].content_p[2].lw.mslw.sli * CONVERT_ACC;
+                        p_event->acceleration.x = library_in_package[j].content_p[0].lw.mslw.sli * convert_acc;
+                        p_event->acceleration.y = library_in_package[j].content_p[1].lw.mslw.sli * convert_acc;
+                        p_event->acceleration.z = library_in_package[j].content_p[2].lw.mslw.sli * convert_acc;
                         p_event->acceleration.status = 0;
                         break;
                     case BSX_INPUT_ID_MAGNETICFIELD:
@@ -549,11 +589,34 @@ void sensord_algo_process(BoschSensor *boschsensor)
                         p_event->uncalibrated_magnetic.z_uncalib = library_in_package[j].content_p[2].lw.mslw.sli * CONVERT_MAG;
                         break;
                     case BSX_INPUT_ID_ANGULARRATE:
+			switch(gyro_range)
+			{
+				case GYRO_CHIP_RANGCONF_125DPS:
+					convert_gyro = CONVERT_GYRO_125_RADPS;
+					break;
+				case GYRO_CHIP_RANGCONF_250DPS:
+					convert_gyro = CONVERT_GYRO_250_RADPS;
+					break;
+				case GYRO_CHIP_RANGCONF_500DPS:
+					convert_gyro = CONVERT_GYRO_500_RADPS;
+					break;
+				case GYRO_CHIP_RANGCONF_1000DPS:
+					convert_gyro = CONVERT_GYRO_1000_RADPS;
+					break;
+				case GYRO_CHIP_RANGCONF_2000DPS:
+					convert_gyro = CONVERT_GYRO_2000_RADPS;
+					break;
+				default:
+					PERR("error gyro range config");
+					continue;
+			}
+			PINFO("GYRO range %d, convert %f", gyro_range, convert_gyro);
+
                         p_event->sensor = BSX_SENSOR_ID_GYROSCOPE_UNCALIBRATED;
                         p_event->type = SENSOR_TYPE_GYROSCOPE_UNCALIBRATED;
-                        p_event->uncalibrated_gyro.x_uncalib = library_in_package[j].content_p[0].lw.mslw.sli * CONVERT_GYRO;
-                        p_event->uncalibrated_gyro.y_uncalib = library_in_package[j].content_p[1].lw.mslw.sli * CONVERT_GYRO;
-                        p_event->uncalibrated_gyro.z_uncalib = library_in_package[j].content_p[2].lw.mslw.sli * CONVERT_GYRO;
+                        p_event->uncalibrated_gyro.x_uncalib = library_in_package[j].content_p[0].lw.mslw.sli * convert_gyro;
+                        p_event->uncalibrated_gyro.y_uncalib = library_in_package[j].content_p[1].lw.mslw.sli * convert_gyro;
+                        p_event->uncalibrated_gyro.z_uncalib = library_in_package[j].content_p[2].lw.mslw.sli * convert_gyro;
                         break;
                     default:
                         PERR("impossible bsx_distribute_id: %d", library_in_package[j].sensor_id);

@@ -28,6 +28,7 @@ extern int accl_chip;
 extern int gyro_chip;
 extern int magn_chip;
 extern int accl_range;
+extern int gyro_range;
 extern int algo_pass;
 extern int amsh_intr_pin;
 extern int amsh_calibration;
@@ -66,5 +67,11 @@ extern long long unsigned int sensors_mask;
 #define ACC_CHIP_RANGCONF_4G   4
 #define ACC_CHIP_RANGCONF_8G   8
 #define ACC_CHIP_RANGCONF_16G  16
+
+#define GYRO_CHIP_RANGCONF_125DPS	125
+#define GYRO_CHIP_RANGCONF_250DPS	250
+#define GYRO_CHIP_RANGCONF_500DPS	500
+#define GYRO_CHIP_RANGCONF_1000DPS	1000
+#define GYRO_CHIP_RANGCONF_2000DPS	2000
 
 #endif
