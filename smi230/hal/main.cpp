@@ -42,7 +42,7 @@ int main()
     }
 
     for (i = 0; i < sensorsNum; ++i) {
-        dev->device.batch((sensors_poll_device_1 *)dev, sSensorList[i].handle, 0, 5000000, 0);
+        dev->device.batch((sensors_poll_device_1 *)dev, sSensorList[i].handle, 0, 10000000, 0);
         dev->device.activate((sensors_poll_device_t *)dev, sSensorList[i].handle, 1);
     }
 

@@ -39,6 +39,8 @@ extern int trace_to_logcat;
 extern long long unsigned int sensors_mask;
 
 //#define SMI230_DATA_SYNC
+//#define SMI230_NEW_DATA
+#define SMI230_FIFO
 
 #define SOLUTION_MDOF       0
 #define SOLUTION_ECOMPASS   1
