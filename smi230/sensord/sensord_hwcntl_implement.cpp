@@ -174,11 +174,20 @@ EV_FF_STATUS        0x17 EV_MAX            0x1f EV_CNT            (EV_MAX+1)
 #define SMI230_ACCEL_RANGE_8G   8
 #define SMI230_ACCEL_RANGE_16G  16
 
+// SMI230 FIFO length is calculated in different unit for ACC and GYRO
+// GRYO counts FIFO in terms of samples, each contains value for all x,y,z axis
+// ACC counts FIFO in bytes, 7 bytes form up a sample
+#define SMI230_ACCEL_BYTES_PER_FIFO_SAMPLE  7
+#define SMI230_ACC_MAX_FIFO_BYTE	1024
+#define SMI230_ACC_MAX_FIFO_FRAME	(SMI230_ACC_MAX_FIFO_BYTE / SMI230_ACCEL_BYTES_PER_FIFO_SAMPLE)
+
 #define SMI230_GYRO_RANGE_125DPS	125
 #define SMI230_GYRO_RANGE_250DPS	250
 #define SMI230_GYRO_RANGE_500DPS	500
 #define SMI230_GYRO_RANGE_1000DPS	1000
 #define SMI230_GYRO_RANGE_2000DPS	2000
+
+#define SMI230_GYRO_MAX_FIFO_FRAME	100
 
 #define BMA2X2_RANGE_2G     3
 #define BMA2X2_RANGE_4G     5
@@ -214,13 +223,14 @@ static uint32_t hwdata_unit_toread = 10;
 static uint32_t default_watermark = 10;
 
 static int32_t poll_timer_fd = -1;
-static int32_t accl_scan_size, gyro_scan_size;
+static int32_t accl_scan_size;
+[[maybe_unused]] static int32_t gyro_scan_size;
 static int32_t accl_iio_fd = -1;
-static int32_t gyro_iio_fd = -1;
+[[maybe_unused]] static int32_t gyro_iio_fd = -1;
 static int acc_input_fd = -1;
 static int acc_input_num = 0;
-static int gyr_input_fd = -1;
-static int gyr_input_num = 0;
+[[maybe_unused]] static int gyr_input_fd = -1;
+[[maybe_unused]] static int gyr_input_num = 0;
 
 static char mag_input_dir_name[128] = {0};
 static char acc_input_dir_name[128] = {0};
@@ -679,15 +689,20 @@ static int32_t is_gyr_open = 0;
 static int32_t is_mag_open = 0;
 
 
-static void ap_config_phyACC(bsx_f32_t sample_rate)
+static void ap_config_phyACC(bsx_f32_t sample_rate, uint16_t fifo_data_len)
 {
     int32_t ret = 0;
     int32_t odr_Hz;
     int32_t bandwidth = 0;
     int32_t fifo_data_sel_regval;
+    int32_t fifo_data_len_in_bytes;
     float physical_Hz = 0;
 
+#ifdef SMI230_DATA_SYNC
+	PINFO("set physical data sync rate %f", sample_rate);
+#else
     PINFO("set physical ACC rate %f", sample_rate);
+#endif
 
     if(ACC_CHIP_BMI160 == accl_chip)
     {
@@ -788,8 +803,23 @@ static void ap_config_phyACC(bsx_f32_t sample_rate)
 		PDEBUG("set acc odr: %f", sample_rate);
 		odr_Hz = SMI230_convert_ODR(SENSORLIST_INX_ACCELEROMETER, sample_rate);
 		PDEBUG("write odr %d to %s", odr_Hz, acc_input_dir_name);
-		ret = wr_sysfs_oneint("odr", acc_input_dir_name, odr_Hz);
+#ifdef SMI230_DATA_SYNC
+		ret = wr_sysfs_oneint("datasync_odr", acc_input_dir_name, odr_Hz);
+#else
+        ret = wr_sysfs_oneint("odr", acc_input_dir_name, odr_Hz);
+#endif
+#ifdef SMI230_FIFO
+        if (fifo_data_len > SMI230_ACC_MAX_FIFO_FRAME)
+            fifo_data_len = SMI230_ACC_MAX_FIFO_FRAME;
 
+        if (fifo_data_len < 1)
+            fifo_data_len = 1;
+
+        fifo_data_len_in_bytes = SMI230_ACCEL_BYTES_PER_FIFO_SAMPLE * fifo_data_len;
+
+		PINFO("write acc wm as %d samples, in %d bytes", fifo_data_len, fifo_data_len_in_bytes);
+        ret = wr_sysfs_oneint("fifo_wm", acc_input_dir_name, fifo_data_len_in_bytes);
+#endif
             }
         }
 
@@ -798,7 +828,7 @@ static void ap_config_phyACC(bsx_f32_t sample_rate)
     return;
 }
 
-static void ap_config_phyGYR(bsx_f32_t sample_rate)
+static void ap_config_phyGYR(bsx_f32_t sample_rate, uint16_t fifo_data_len)
 {
     int32_t ret = 0;
     int32_t odr_Hz;
@@ -897,11 +927,22 @@ static void ap_config_phyGYR(bsx_f32_t sample_rate)
                 ret = wr_sysfs_oneint("pwr_cfg", gyr_input_dir_name, SENSOR_PM_NORMAL);
 
                 is_gyr_open = 1;
-
+#ifndef SMI230_DATA_SYNC
+        // if in data sync mode, odr is controled through ACC api
 		PDEBUG("set gyr odr: %f", sample_rate);
 		odr_Hz = SMI230_convert_ODR(SENSORLIST_INX_GYROSCOPE_UNCALIBRATED, sample_rate);
 		PDEBUG("write odr %d to %s", odr_Hz, gyr_input_dir_name);
 		ret = wr_sysfs_oneint("bw_odr", gyr_input_dir_name, odr_Hz);
+#endif
+#ifdef SMI230_FIFO
+        if (fifo_data_len > SMI230_GYRO_MAX_FIFO_FRAME)
+            fifo_data_len = SMI230_GYRO_MAX_FIFO_FRAME;
+        if (fifo_data_len < 1)
+            fifo_data_len = 1;
+
+		PINFO("write gyro wm as %d", fifo_data_len);
+        ret = wr_sysfs_oneint("fifo_wm", gyr_input_dir_name, fifo_data_len);
+#endif
             }
         }
 
@@ -1024,7 +1065,7 @@ static void ap_config_phyMAG(bsx_f32_t sample_rate)
 }
 
 
-static void ap_config_physensor(bsx_u32_t input_id, bsx_f32_t sample_rate)
+static void ap_config_physensor(bsx_u32_t input_id, bsx_f32_t sample_rate, uint16_t fifo_data_len)
 {
     int32_t ret = 0;
 
@@ -1036,13 +1077,13 @@ static void ap_config_physensor(bsx_u32_t input_id, bsx_f32_t sample_rate)
     switch (input_id)
     {
         case BSX_INPUT_ID_ACCELERATION:
-            ap_config_phyACC(sample_rate);
+            ap_config_phyACC(sample_rate, fifo_data_len);
             break;
         case BSX_INPUT_ID_MAGNETICFIELD:
             ap_config_phyMAG(sample_rate);
             break;
         case BSX_INPUT_ID_ANGULARRATE:
-            ap_config_phyGYR(sample_rate);
+            ap_config_phyGYR(sample_rate, fifo_data_len);
             break;
         default:
             PWARN("unknown input id: %d", input_id);
@@ -1129,7 +1170,7 @@ static void ap_send_config(int32_t bsx_list_inx)
                 return;
         }
 
-        ap_config_physensor(input_id, bsx_config_output[0].sample_rate);
+        ap_config_physensor(input_id, bsx_config_output[0].sample_rate, p_config[bsx_list_inx - list_inx_base].fifo_data_len);
     }
 
     return;
@@ -1167,7 +1208,7 @@ static void ap_send_disable_config(int32_t bsx_list_inx)
                 return;
         }
 
-        ap_config_physensor(input_id, SAMPLE_RATE_DISABLED);
+        ap_config_physensor(input_id, SAMPLE_RATE_DISABLED, 0);
     }
     return;
 }
@@ -1253,7 +1294,7 @@ int32_t ap_batch(int32_t handle, int32_t flags, int64_t sampling_period_ns, int6
         return 0;
     }
 
-    PDEBUG("batch(handle: %d, sampling_period_ns = %lld)", handle, sampling_period_ns);
+    PINFO("batch(handle: %d, sampling_period_ns = %lld, max_report_latency = %lld)", handle, sampling_period_ns, max_report_latency_ns);
 
     /*
      For continuous and on-change sensors
@@ -1332,12 +1373,12 @@ int32_t ap_flush(BoschSensor *boschsensor, int32_t handle)
 static void ap_hw_poll_smi230acc(BoschSimpleList *dest_list_acc, BoschSimpleList *dest_list_gyro)
 {
     int32_t ret;
-    struct input_event event[10];
+    struct input_event event[12];
     HW_DATA_UNION *p_hwdata;
 
     while( (ret = read(acc_input_fd, event, sizeof(event))) > 0)
     {
-        if(EV_SYN != event[9].type)
+        if(EV_SYN != event[11].type)
         {
             PWARN("0: %d, %d, %d;", event[0].type, event[0].code, event[0].value);
             PWARN("1: %d, %d, %d;", event[1].type, event[1].code, event[1].value);
@@ -1349,6 +1390,8 @@ static void ap_hw_poll_smi230acc(BoschSimpleList *dest_list_acc, BoschSimpleList
             PWARN("7: %d, %d, %d;", event[7].type, event[7].code, event[7].value);
             PWARN("8: %d, %d, %d;", event[8].type, event[8].code, event[8].value);
             PWARN("9: %d, %d, %d;", event[9].type, event[9].code, event[9].value);
+            PWARN("10: %d, %d, %d;", event[10].type, event[10].code, event[10].value);
+            PWARN("11: %d, %d, %d;", event[11].type, event[11].code, event[11].value);
             continue;
         }
 
@@ -1360,11 +1403,11 @@ static void ap_hw_poll_smi230acc(BoschSimpleList *dest_list_acc, BoschSimpleList
         }
 
         p_hwdata->id = SENSOR_TYPE_ACCELEROMETER;
-        p_hwdata->x = event[0].value;
-        p_hwdata->y = event[1].value;
-        p_hwdata->z = event[2].value;
+        p_hwdata->x = event[2].value;
+        p_hwdata->y = event[3].value;
+        p_hwdata->z = event[4].value;
 	//use sync event timestamp for all data
-        p_hwdata->timestamp = event[9].time.tv_sec * 1000000LL +  event[9].time.tv_usec;
+        p_hwdata->timestamp = event[0].value * 1000000000LL +  event[1].value;
 
         ret = dest_list_acc->list_add_rear((void *) p_hwdata);
         if (ret)
@@ -1383,11 +1426,11 @@ static void ap_hw_poll_smi230acc(BoschSimpleList *dest_list_acc, BoschSimpleList
         }
 
         p_hwdata->id = SENSOR_TYPE_GYROSCOPE_UNCALIBRATED;
-        p_hwdata->x_uncalib = event[3].value;
-        p_hwdata->y_uncalib = event[4].value;
-        p_hwdata->z_uncalib = event[5].value;
+        p_hwdata->x_uncalib = event[5].value;
+        p_hwdata->y_uncalib = event[6].value;
+        p_hwdata->z_uncalib = event[7].value;
 	//use sync event timestamp for all data
-        p_hwdata->timestamp = event[9].time.tv_sec * 1000000LL +  event[9].time.tv_usec;
+        p_hwdata->timestamp = event[0].value * 1000000000LL +  event[1].value;
 
         ret = dest_list_gyro->list_add_rear((void *) p_hwdata);
         if (ret)
@@ -1407,29 +1450,29 @@ static void ap_hw_poll_smi230acc(BoschSimpleList *dest_list_acc, BoschSimpleList
 static void ap_hw_poll_smi230acc(BoschSimpleList *dest_list_acc)
 {
     int32_t ret;
-#ifdef SMI230_NEW_DATA
     struct input_event event[6];
-#else
-    struct input_event event[4];
-#endif
     HW_DATA_UNION *p_hwdata;
 
     while( (ret = read(acc_input_fd, event, sizeof(event))) > 0)
     {
-#ifdef SMI230_NEW_DATA
         if(EV_SYN != event[5].type)
-#else
-        if(EV_SYN != event[3].type)
-#endif
         {
             PWARN("0: %d, %d, %d;", event[0].type, event[0].code, event[0].value);
             PWARN("1: %d, %d, %d;", event[1].type, event[1].code, event[1].value);
             PWARN("2: %d, %d, %d;", event[2].type, event[2].code, event[2].value);
             PWARN("3: %d, %d, %d;", event[3].type, event[3].code, event[3].value);
-#ifdef SMI230_NEW_DATA
             PWARN("4: %d, %d, %d;", event[4].type, event[4].code, event[4].value);
             PWARN("5: %d, %d, %d;", event[5].type, event[5].code, event[5].value);
-#endif
+            continue;
+        }
+        if(event[0].value == 0)
+        {
+            PWARN("0: %d, %d, %d;", event[0].type, event[0].code, event[0].value);
+            PWARN("1: %d, %d, %d;", event[1].type, event[1].code, event[1].value);
+            PWARN("2: %d, %d, %d;", event[2].type, event[2].code, event[2].value);
+            PWARN("3: %d, %d, %d;", event[3].type, event[3].code, event[3].value);
+            PWARN("4: %d, %d, %d;", event[4].type, event[4].code, event[4].value);
+            PWARN("5: %d, %d, %d;", event[5].type, event[5].code, event[5].value);
             continue;
         }
 
@@ -1441,18 +1484,10 @@ static void ap_hw_poll_smi230acc(BoschSimpleList *dest_list_acc)
         }
 
         p_hwdata->id = SENSOR_TYPE_ACCELEROMETER;
-#ifdef SMI230_NEW_DATA
         p_hwdata->x = event[2].value;
         p_hwdata->y = event[3].value;
         p_hwdata->z = event[4].value;
-	p_hwdata->timestamp = event[0].value * 1000000000LL +  event[1].value;
-#else
-        p_hwdata->x = event[0].value;
-        p_hwdata->y = event[1].value;
-        p_hwdata->z = event[2].value;
-	//use sync event timestamp for all data
-	p_hwdata->timestamp = event[3].time.tv_sec * 1000000LL +  event[3].time.tv_usec;
-#endif
+        p_hwdata->timestamp = event[0].value * 1000000000LL +  event[1].value;
 
         ret = dest_list_acc->list_add_rear((void *) p_hwdata);
         if (ret)
@@ -1472,29 +1507,19 @@ static void ap_hw_poll_smi230acc(BoschSimpleList *dest_list_acc)
 static void ap_hw_poll_smi230gyro(BoschSimpleList *dest_list)
 {
     int32_t ret;
-#ifdef SMI230_NEW_DATA
     struct input_event event[6];
-#else
-    struct input_event event[4];
-#endif
     HW_DATA_UNION *p_hwdata;
 
     while( (ret = read(gyr_input_fd, event, sizeof(event))) > 0)
     {
-#ifdef SMI230_NEW_DATA
         if(EV_SYN != event[5].type)
-#else
-        if(EV_SYN != event[3].type)
-#endif
         {
             PWARN("0: %d, %d, %d;", event[0].type, event[0].code, event[0].value);
             PWARN("1: %d, %d, %d;", event[1].type, event[1].code, event[1].value);
             PWARN("2: %d, %d, %d;", event[2].type, event[2].code, event[2].value);
             PWARN("3: %d, %d, %d;", event[3].type, event[3].code, event[3].value);
-#ifdef SMI230_NEW_DATA
             PWARN("4: %d, %d, %d;", event[4].type, event[4].code, event[4].value);
             PWARN("5: %d, %d, %d;", event[5].type, event[5].code, event[5].value);
-#endif
             continue;
         }
 
@@ -1506,18 +1531,10 @@ static void ap_hw_poll_smi230gyro(BoschSimpleList *dest_list)
         }
 
         p_hwdata->id = SENSOR_TYPE_GYROSCOPE_UNCALIBRATED;
-#ifdef SMI230_NEW_DATA
         p_hwdata->x_uncalib = event[2].value;
         p_hwdata->y_uncalib = event[3].value;
         p_hwdata->z_uncalib = event[4].value;
-	p_hwdata->timestamp = event[0].value * 1000000000LL +  event[1].value;
-#else
-        p_hwdata->x_uncalib = event[0].value;
-        p_hwdata->y_uncalib = event[1].value;
-        p_hwdata->z_uncalib = event[2].value;
-	//use sync event timestamp for all data
-	p_hwdata->timestamp = event[3].time.tv_sec * 1000000LL +  event[3].time.tv_usec;
-#endif
+        p_hwdata->timestamp = event[0].value * 1000000000LL +  event[1].value;
 
         hw_remap_sensor_data(&(p_hwdata->x_uncalib), &(p_hwdata->y_uncalib), &(p_hwdata->z_uncalib), g_place_g);
 
@@ -1960,10 +1977,10 @@ static int32_t ap_hwcntl_init_ACC()
 
         driver_show_ver(acc_input_dir_name);
 
-        PDEBUG("acc range config %d", accl_range);
+        PINFO("acc range config %d", accl_range);
         switch(accl_range){
             case ACC_CHIP_RANGCONF_2G:
-                ret += wr_sysfs_oneint("range", acc_input_dir_name, SMI230_ACCEL_RANGE_4G);
+                ret += wr_sysfs_oneint("range", acc_input_dir_name, SMI230_ACCEL_RANGE_2G);
 		break;
             case ACC_CHIP_RANGCONF_4G:
                 ret += wr_sysfs_oneint("range", acc_input_dir_name, SMI230_ACCEL_RANGE_4G);
@@ -1988,7 +2005,6 @@ static int32_t ap_hwcntl_init_ACC()
 }
 
 
-#ifndef SMI230_DATA_SYNC
 static int32_t ap_hwcntl_init_GYRO()
 {
     int32_t ret = 0;
@@ -2071,7 +2087,7 @@ static int32_t ap_hwcntl_init_GYRO()
         PDEBUG("gyr input_num = %d", gyr_input_num);
         sprintf(gyr_input_dir_name, "/sys/class/input/SMI230GYRO");
 
-        PDEBUG("gyro range config %d", gyro_range);
+        PINFO("gyro range config %d", gyro_range);
         switch(gyro_range){
             case GYRO_CHIP_RANGCONF_125DPS:
                 ret += wr_sysfs_oneint("range", gyr_input_dir_name, SMI230_GYRO_RANGE_125DPS);
@@ -2101,7 +2117,6 @@ static int32_t ap_hwcntl_init_GYRO()
     return 0;
 
 }
-#endif
 
 
 int32_t hwcntl_init(BoschSensor *boschsensor)

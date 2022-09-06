@@ -39,12 +39,14 @@
 #include "util_misc.h"
 
 /*
+ * HAL 0.3.0.0 matches driver version 0.7.2
+ */
+/*
  * 1st byte major version of HAL
  * 2nd byte minor version of HAL
- * 3nd byte major version of driver which this HAL is based on
- * 4nd byte minor version of driver which this HAL is based on
+ * 3nd byte bug fix version of HAL
  */
-uint8_t HAL_ver[4] = { 0, 2, 0, 5 };
+uint8_t HAL_ver[4] = { 0, 3, 0, 0 };
 
 #define UNUSED_SENSOR_T(sensor_name) \
 	{	.name = sensor_name,\
@@ -1146,7 +1148,23 @@ static uint8_t encode_datarate(int64_t sampling_period_ns)
 
     Hz = 1000000000.0f / (float)sampling_period_ns;
 
-    if (Hz > 200)
+    if (Hz > 1600 && Hz <= 2000)
+    {
+        return BSX_CONFSTR_2000Hz;
+    }
+    if (Hz > 1000 && Hz <= 1600)
+    {
+        return BSX_CONFSTR_1600Hz;
+    }
+    if (Hz > 800 && Hz <= 1000)
+    {
+        return BSX_CONFSTR_1000Hz;
+    }
+    if (Hz > 400 && Hz <= 800)
+    {
+        return BSX_CONFSTR_800Hz;
+    }
+    if (Hz > 200 && Hz <= 400)
     {
         return BSX_CONFSTR_400Hz;
     }
@@ -1348,6 +1366,7 @@ int batch_configref_resort(int32_t bsx_list_index, int64_t sampling_period_ns, i
     BSX_SENSOR_CONFIG **p_config_refers;
     uint32_t *p_active_sensor_cnt;
 
+    PINFO("sampling_period_ns = %lld, max_report_latency = %lld)", sampling_period_ns, max_report_latency_ns);
     if (bsx_list_index <= SENSORLIST_INX_AMBIENT_IAQ)
     {
         bsx_listinx_base = SENSORLIST_INX_GAS_RESIST;
@@ -1374,6 +1393,8 @@ int batch_configref_resort(int32_t bsx_list_index, int64_t sampling_period_ns, i
                     &(p_config_refers[i]->max_latency),
                     &(p_config_refers[i]->latency_unit));
             p_config_refers[i]->delay_onchange_Hz = delay_Hz;
+            p_config_refers[i]->fifo_data_len = max_report_latency_ns / sampling_period_ns;
+            PDEBUG("i %d, fifo wm = %d)", i, p_config_refers[i]->fifo_data_len);
             return 1;
         }
     }
@@ -1383,6 +1404,8 @@ int batch_configref_resort(int32_t bsx_list_index, int64_t sampling_period_ns, i
             &(p_config[bsx_list_index - bsx_listinx_base].max_latency),
             &(p_config[bsx_list_index - bsx_listinx_base].latency_unit));
     p_config[bsx_list_index - bsx_listinx_base].delay_onchange_Hz = delay_Hz;
+    p_config[bsx_list_index - bsx_listinx_base].fifo_data_len = max_report_latency_ns / sampling_period_ns;
+    PDEBUG("fifo wm = %d)", p_config[bsx_list_index - bsx_listinx_base].fifo_data_len);
 
     return 0;
 

@@ -23,7 +23,7 @@
 #if defined(__FASTEST_MODE_100HZ__)
 #define BST_SENSOR_MINDELAY_uS 10000
 #else
-#define BST_SENSOR_MINDELAY_uS 5000
+#define BST_SENSOR_MINDELAY_uS 500
 #endif
 
 /* this value depends on the reporting mode:

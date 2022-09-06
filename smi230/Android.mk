@@ -58,7 +58,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/hal\
 LOCAL_CFLAGS := -pthread -Wno-error=unused-local-typedef
 
 ifeq ($(LOCAL_UNIT_TEST),true)
-LOCAL_CPPFLAGS := -pthread -Wno-date-time -Wno-error=deprecated-declarations -Wno-error=unused-function -Wno-error=unused-local-typedef -Wno-error=unused-variable -DUNIT_TEST_ACTIVE
+LOCAL_CPPFLAGS := -pthread -Wno-date-time -Wno-error=deprecated-declarations -Wno-error=unused-function -Wno-error=unused-local-typedef -Wno-error=unused-variable -DTEST_APP_ACTIVE
 else
 LOCAL_CPPFLAGS := -pthread -Wno-date-time -Wno-error=deprecated-declarations -Wno-error=unused-function -Wno-error=unused-local-typedef -Wno-error=unused-variable
 endif

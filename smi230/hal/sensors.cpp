@@ -252,7 +252,7 @@ struct sensors_module_t HAL_MODULE_INFO_SYM =
 #endif
 };
 
-#if defined(UNIT_TEST_ACTIVE)
+#if defined(TEST_APP_ACTIVE)
 #include "main.cpp"
 #endif
 

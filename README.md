@@ -36,10 +36,15 @@ See [LICENSE](smi230/LICENSE) file
 -------------------------------------------------------
                   Hardware
 ```
-## Operation Examples <a name=examples></a>
+## Usage
 
-SMI230 HAL is a shared lib, which is dynamically linked to other Android programs.
-* For convenient testing, it can be compiled as an executable to directly run on command line.
+SMI230 HAL is a shared lib, compatable with android sensor 1.0 specification.
+There are two ways to compile/build the lib.
+
+### build with Android SDK
+
+This way, the HAL lib is dynamically linked to other Android libs in its SDK.
+For convenient testing, it can also be compiled as an executable to directly run on command line.
 
 Integrate this repository into your build setup into location
 ```
@@ -48,3 +53,17 @@ Integrate this repository into your build setup into location
 extend your build setup with smi230-hal and compile it.
 
 For more information please refer to [android build system](https://source.android.com/setup/build/building)
+
+### build independantly without Android SDK
+
+The essecial header files from Android have already been placed in the repo and adapted for compiling the lib. The local libs instead of Android SDK libs would be used to link to the HAL lib in the build process.
+Go to the folder where Makefile is located, and first clean the folder by issuing command:
+```
+make clean
+```
+Then simply issue command:
+```
+make
+```
+the Hal lib will be built in seconds.
+Note: the Makefile is written for cross compiling on the host and with toolchain specified. If a different environment is used, a little change is needed to fit into new conditions.

@@ -434,7 +434,8 @@ void sensord_algo_process(BoschSensor *boschsensor)
 
         if(acc_has_input){
             library_in_package[input_package_index++] = accel_in_data;
-#ifdef	    SMI230_DATA_SYNC
+#ifdef TEST_APP_ACTIVE
+#ifdef SMI230_DATA_SYNC
             PINFO("ACC data: T=%lld, %d, %d, %d",
                     accel_in_data.time_stamp,
 		    accel_in_data.content_p[0].lw.mslw.sli,
@@ -447,6 +448,7 @@ void sensord_algo_process(BoschSensor *boschsensor)
                     accel_in_data.content_p[0].lw.mslw.sli,
                     accel_in_data.content_p[1].lw.mslw.sli,
                     accel_in_data.content_p[2].lw.mslw.sli);
+#endif
 #endif
 
             if(data_log){
@@ -469,12 +471,14 @@ void sensord_algo_process(BoschSensor *boschsensor)
 
         if(mag_has_input){
             library_in_package[input_package_index++] = mag_in_data;
+#ifdef TEST_APP_ACTIVE
             PINFO("input MAG data: id=%u, D=%d, %d, %d T=%lld",
                     mag_in_data.sensor_id,
                     mag_in_data.content_p[0].lw.mslw.sli,
                     mag_in_data.content_p[1].lw.mslw.sli,
                     mag_in_data.content_p[2].lw.mslw.sli,
                     mag_in_data.time_stamp);
+#endif
 
             if(data_log){
                 mag_log_data.x = mag_in_data.content_p[0].lw.mslw.sli;
@@ -496,7 +500,8 @@ void sensord_algo_process(BoschSensor *boschsensor)
 
         if(gyr_has_input){
             library_in_package[input_package_index++] = ang_in_data;
-#ifdef	    SMI230_DATA_SYNC
+#ifdef TEST_APP_ACTIVE
+#ifdef SMI230_DATA_SYNC
             PINFO("GYRO data: %d, %d, %d",
                     ang_in_data.content_p[0].lw.mslw.sli,
                     ang_in_data.content_p[1].lw.mslw.sli,
@@ -508,6 +513,7 @@ void sensord_algo_process(BoschSensor *boschsensor)
                     ang_in_data.content_p[0].lw.mslw.sli,
                     ang_in_data.content_p[1].lw.mslw.sli,
                     ang_in_data.content_p[2].lw.mslw.sli);
+#endif
 #endif
 
             if(data_log){
@@ -572,13 +578,18 @@ void sensord_algo_process(BoschSensor *boschsensor)
 					PERR("error accel range config");
 					continue;
 			}
-			PINFO("ACC range %d, convert %f", accl_range, convert_acc);
+#ifdef TEST_APP_ACTIVE
+			PDEBUG("ACC range %d, convert %f", accl_range, convert_acc);
+#endif
 
                         p_event->sensor = BSX_SENSOR_ID_ACCELEROMETER;
                         p_event->type = SENSOR_TYPE_ACCELEROMETER;
                         p_event->acceleration.x = library_in_package[j].content_p[0].lw.mslw.sli * convert_acc;
                         p_event->acceleration.y = library_in_package[j].content_p[1].lw.mslw.sli * convert_acc;
                         p_event->acceleration.z = library_in_package[j].content_p[2].lw.mslw.sli * convert_acc;
+                        p_event->uncalibrated_accelerometer.x_uncalib = p_event->acceleration.x;
+                        p_event->uncalibrated_accelerometer.y_uncalib = p_event->acceleration.y;
+                        p_event->uncalibrated_accelerometer.z_uncalib = p_event->acceleration.z;
                         p_event->acceleration.status = 0;
                         break;
                     case BSX_INPUT_ID_MAGNETICFIELD:
@@ -610,7 +621,9 @@ void sensord_algo_process(BoschSensor *boschsensor)
 					PERR("error gyro range config");
 					continue;
 			}
-			PINFO("GYRO range %d, convert %f", gyro_range, convert_gyro);
+#ifdef TEST_APP_ACTIVE
+			PDEBUG("GYRO range %d, convert %f", gyro_range, convert_gyro);
+#endif
 
                         p_event->sensor = BSX_SENSOR_ID_GYROSCOPE_UNCALIBRATED;
                         p_event->type = SENSOR_TYPE_GYROSCOPE_UNCALIBRATED;

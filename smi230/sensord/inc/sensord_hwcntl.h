@@ -115,6 +115,10 @@ enum BST_DEV_OP_MODE
 #define SENSOR_TYPE_BOSCH_GAS_RESIST                (SENSOR_TYPE_BOSCH_ACTIVITY_RECOGNITION + 4)
 #define SENSOR_STRING_TYPE_BOSCH_GAS_RESIST         "com.bosch-BoschSensor.www.GAS"
 
+#define BSX_CONFSTR_2000Hz  18
+#define BSX_CONFSTR_1600Hz  17
+#define BSX_CONFSTR_1000Hz  16
+#define BSX_CONFSTR_800Hz  15
 #define BSX_CONFSTR_400Hz  1
 #define BSX_CONFSTR_200Hz  2
 #define BSX_CONFSTR_100Hz  3
@@ -139,6 +143,18 @@ enum BST_DEV_OP_MODE
 #define CONVERT_DATARATE_CODE(code, rate) \
     switch (code)\
     {\
+        case BSX_CONFSTR_2000Hz:\
+            rate = 2000;\
+            break;\
+        case BSX_CONFSTR_1600Hz:\
+            rate = 1600;\
+            break;\
+        case BSX_CONFSTR_1000Hz:\
+            rate = 1000;\
+            break;\
+        case BSX_CONFSTR_800Hz:\
+            rate = 800;\
+            break;\
         case BSX_CONFSTR_400Hz:\
             rate = 400;\
             break;\
