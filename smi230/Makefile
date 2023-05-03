@@ -19,19 +19,24 @@ OBJS := $(addsuffix .o,$(basename $(SRCS)))
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-HAL_TEST ?= true
+HAL_TEST ?= false
 
 ifeq ($(HAL_TEST), true)
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -DPLTF_LINUX_ENABLED -DTEST_APP_ACTIVE
-LDFLAGS ?= -lpthread -lstdc++
+LDFLAGS ?= -lpthread -lstdc++ -static
+OUTPUT ?= smi230_hal_test
+
+all: $(SRCS) clean
+	arm-linux-gnueabihf-gcc $(CPPFLAGS) -lpthread -lstdc++ $(SRCS) $(LDFLAGS) -o $(OUTPUT)
 else
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -DPLTF_LINUX_ENABLED
 LDFLAGS ?= -lpthread -lstdc++ -shared
-endif
+OUTPUT ?= smi230_hal
 
-hal_test: $(SRCS)
-	arm-linux-gnueabihf-gcc $(CPPFLAGS) -lpthread -lstdc++ $(SRCS) $(LDFLAGS) -o hal_test
+all: $(SRCS) clean
+	arm-linux-gnueabihf-gcc $(CPPFLAGS) -lpthread -lstdc++ $(SRCS) $(LDFLAGS) -o $(OUTPUT).so
+endif
 
 .PHONY: clean
 clean:
-	$(RM) $(TARGET) $(OBJS) $(DEPS) hal_test.d
+	$(RM) $(TARGET) $(OBJS) $(DEPS) $(OUTPUT).d $(OUTPUT) $(OUTPUT).so

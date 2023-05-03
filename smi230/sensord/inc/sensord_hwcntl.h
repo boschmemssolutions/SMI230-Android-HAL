@@ -91,13 +91,18 @@ enum BSX4_SENSORLIST_INX
 };
 
 /*!bosch sensor generic power mode enum */
-enum BST_DEV_OP_MODE
+enum BST_DEV_ACC_OP_MODE
 {
     SENSOR_PM_NORMAL = 0,
-    SENSOR_PM_LP1,
-    SENSOR_PM_SUSPEND,
-    SENSOR_PM_LP2
+    SENSOR_PM_SUSPEND = 3
 };
+
+enum BST_DEV_GYRO_OP_MODE
+{
+    SENSOR_GYRO_PM_NORMAL = 0,
+    SENSOR_GYRO_PM_SUSPEND = 1
+};
+
 
 #define SENSOR_TYPE_BOSCH_ACTIVITY_RECOGNITION              (SENSOR_TYPE_DEVICE_PRIVATE_BASE + 31)
 #define SENSOR_STRING_TYPE_BOSCH_AR "com.bosch-BoschSensor.www.activityrecognition"
