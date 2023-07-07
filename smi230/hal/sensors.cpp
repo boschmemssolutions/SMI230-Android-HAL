@@ -32,6 +32,8 @@
 
 #include "sensors_poll_context.h"
 
+#define VERSION_MAJOR (0)
+#define VERSION_MINOR (3)
 
 /*****************************************************************************/
 static const struct sensor_t *sSensorList = NULL;
@@ -234,21 +236,20 @@ static struct hw_module_methods_t sensors_module_methods =
 };
 
 struct sensors_module_t HAL_MODULE_INFO_SYM =
-{
-    .common = {
-        .tag = HARDWARE_MODULE_TAG,
-        .version_major = 1,
-        .version_minor = 0,
-        .id = SENSORS_HARDWARE_MODULE_ID,
-        .name = "Bosch Sensor module",
-        .author = "Robert Bosch,GmbH",
-        .methods = &sensors_module_methods,
-        .dso = NULL,
-        .reserved = {0}
-    },
-    .get_sensors_list = sensors__get_sensors_list,
+    {
+        .common = {
+            .tag = HARDWARE_MODULE_TAG,
+            .module_api_version = (VERSION_MAJOR << 8) | VERSION_MINOR,
+            .hal_api_version = 0,
+            .id = SENSORS_HARDWARE_MODULE_ID,
+            .name = "Bosch Sensor module",
+            .author = "Robert Bosch,GmbH",
+            .methods = &sensors_module_methods,
+            .dso = NULL,
+            .reserved = {0}},
+        .get_sensors_list = sensors__get_sensors_list,
 #if defined(SENSORS_DEVICE_API_VERSION_1_4)
-    .set_operation_mode = sensors__set_operation_mode,
+        .set_operation_mode = sensors__set_operation_mode,
 #endif
 };
 

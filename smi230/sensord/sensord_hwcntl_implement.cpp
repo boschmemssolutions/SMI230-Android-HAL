@@ -187,9 +187,7 @@ EV_FF_STATUS        0x17 EV_MAX            0x1f EV_CNT            (EV_MAX+1)
 #define SMI230_GYRO_RANGE_1000DPS	1000
 #define SMI230_GYRO_RANGE_2000DPS	2000
 
-#define SMI230_GYRO_BYTES_PER_FIFO_SAMPLE  6
-#define SMI230_GYRO_MAX_FIFO_BYTE	100
-#define SMI230_GYRO_MAX_FIFO_FRAME	(SMI230_GYRO_MAX_FIFO_BYTE / SMI230_GYRO_BYTES_PER_FIFO_SAMPLE)
+#define SMI230_GYRO_MAX_FIFO_FRAME	100
 
 #define BMA2X2_RANGE_2G     3
 #define BMA2X2_RANGE_4G     5
@@ -826,7 +824,6 @@ static void ap_config_phyGYR(bsx_f32_t sample_rate, uint16_t fifo_data_len)
     int32_t odr_Hz;
     int32_t bandwidth = 0;
     int32_t fifo_data_sel_regval;
-    int32_t fifo_data_len_in_bytes;
     float physical_Hz = 0;
 
     PINFO("set physical GYRO rate %f", sample_rate);
@@ -924,10 +921,8 @@ static void ap_config_phyGYR(bsx_f32_t sample_rate, uint16_t fifo_data_len)
         if (fifo_data_len < 1)
             fifo_data_len = 1;
 
-	fifo_data_len_in_bytes = SMI230_GYRO_BYTES_PER_FIFO_SAMPLE * fifo_data_len;
-
-	PINFO("write gyro wm as %d samples, in %d bytes", fifo_data_len, fifo_data_len_in_bytes);
-        ret = wr_sysfs_oneint("fifo_wm", gyr_input_dir_name, fifo_data_len_in_bytes);
+		PINFO("write gyro wm as %d", fifo_data_len);
+        ret = wr_sysfs_oneint("fifo_wm", gyr_input_dir_name, fifo_data_len);
 #endif
         }
 

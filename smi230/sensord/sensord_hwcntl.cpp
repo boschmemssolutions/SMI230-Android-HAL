@@ -46,7 +46,7 @@
  * 2nd byte minor version of HAL
  * 3nd byte bug fix version of HAL
  */
-uint8_t HAL_ver[4] = { 0, 3, 0, 0 };
+uint8_t HAL_ver[4] = { 0, 3, 2, 0 };
 
 #define UNUSED_SENSOR_T(sensor_name) \
 	{	.name = sensor_name,\
