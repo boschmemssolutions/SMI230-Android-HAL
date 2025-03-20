@@ -21,11 +21,10 @@
 #define __AXIS_REMAP_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    void hw_remap_sensor_data(float *px, float *py, float *pz, int position);
+void hw_remap_sensor_data(float *px, float *py, float *pz, int position);
 
 #ifdef __cplusplus
 }

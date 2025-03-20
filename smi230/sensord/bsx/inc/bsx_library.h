@@ -29,8 +29,7 @@
 #include "bsx_datatypes.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*! @brief Retrieve the current version of the library
@@ -40,7 +39,7 @@ extern "C"
  * @return Zero when successful, otherwise an error code
  *  @retval BSX_OK
  */
-bsx_return_t bsx_get_version(bsx_version_t * bsx_version_p);
+bsx_return_t bsx_get_version(bsx_version_t *bsx_version_p);
 
 /*! @brief Initialize the library
  *
@@ -55,7 +54,7 @@ bsx_return_t bsx_get_version(bsx_version_t * bsx_version_p);
  *
  * Further information is available in the integration guideline for \ref intguideInterfacesInit "initialization of BSX".
  */
-bsx_return_t bsx_init(bsx_instance_t * const bsx_p);
+bsx_return_t bsx_init(bsx_instance_t *const bsx_p);
 
 /*! @brief perform signal processing steps of the library for provided signal samples and, if desired, return results of the processing
  *
@@ -94,10 +93,9 @@ bsx_return_t bsx_init(bsx_instance_t * const bsx_p);
  *
  * Further information is available in the integration guideline for \ref intguideInterfacesDosteps "processing of signals".
  */
-bsx_return_t bsx_do_steps(bsx_instance_t * const bsx_p, const bsx_u8_t threads,
-                          bsx_fifo_data_t *data_in_p, const bsx_u32_t n_data_in,
-                          bsx_fifo_data_t *data_out_p, bsx_u32_t *n_data_out_p);
-
+bsx_return_t bsx_do_steps(bsx_instance_t *const bsx_p, const bsx_u8_t threads,
+			  bsx_fifo_data_t *data_in_p, const bsx_u32_t n_data_in,
+			  bsx_fifo_data_t *data_out_p, bsx_u32_t *n_data_out_p);
 
 /*! @brief Retrieve the sample of the given single sensor of the library
  *
@@ -116,8 +114,9 @@ bsx_return_t bsx_do_steps(bsx_instance_t * const bsx_p, const bsx_u8_t threads,
  *
  * Further information is available in the integration guideline for \ref intguideInterfacesGetoutputsignal "retrieving output signals".
  */
-bsx_return_t bsx_get_output_signal(bsx_instance_t * const bsx_p, bsx_fifo_data_t * data_out_p,
-                                   const bsx_s16_t sensor_id);
+bsx_return_t bsx_get_output_signal(bsx_instance_t *const bsx_p,
+				   bsx_fifo_data_t *data_out_p,
+				   const bsx_s16_t sensor_id);
 
 /*! @brief Update the subscription of the library client to provided virtual sensors
  *
@@ -161,12 +160,12 @@ bsx_return_t bsx_get_output_signal(bsx_instance_t * const bsx_p, bsx_fifo_data_t
  *
  * Further information and example sequences for updating the subscription are available in the integration guideline for \ref intguideInterfacesUpdatesubscription "the subscription update functionality".
  */
-bsx_return_t bsx_update_subscription(bsx_instance_t *const bsx_p,
-                                     bsx_sensor_configuration_t *const virtual_sensor_config_p,
-                                     bsx_u32_t *const n_virtual_sensor_config_p,
-                                     bsx_sensor_configuration_t *const physical_sensor_config_p,
-                                     bsx_u32_t *const n_physical_sensor_config_p);
-
+bsx_return_t bsx_update_subscription(
+	bsx_instance_t *const bsx_p,
+	bsx_sensor_configuration_t *const virtual_sensor_config_p,
+	bsx_u32_t *const n_virtual_sensor_config_p,
+	bsx_sensor_configuration_t *const physical_sensor_config_p,
+	bsx_u32_t *const n_physical_sensor_config_p);
 
 /*! @brief Update the current configuration of the library
  *
@@ -191,9 +190,11 @@ bsx_return_t bsx_update_subscription(bsx_instance_t *const bsx_p,
  *
  * Further information is available in the integration guideline for \ref intguideInterfacesSetconfiguration "update of the BSX configuration".
  */
-bsx_return_t bsx_set_configuration(bsx_instance_t * const bsx_p,
-                                   bsx_u8_t *serialized_settings_p, const bsx_u32_t n_serialized_settings,
-                                   bsx_u8_t *work_buffer_p, const bsx_u32_t n_work_buffer);
+bsx_return_t bsx_set_configuration(bsx_instance_t *const bsx_p,
+				   bsx_u8_t *serialized_settings_p,
+				   const bsx_u32_t n_serialized_settings,
+				   bsx_u8_t *work_buffer_p,
+				   const bsx_u32_t n_work_buffer);
 
 /*! @brief Retrieve the current configuration of the library for the given set identifier
  *
@@ -219,10 +220,12 @@ bsx_return_t bsx_set_configuration(bsx_instance_t * const bsx_p,
  *
  * Further information is available in the integration guideline for \ref intguideInterfacesGetconfiguration "retrieval of the BSX configuration".
  */
-bsx_return_t bsx_get_configuration(bsx_instance_t * const bsx_p, const bsx_u8_t config_set_id,
-                                   bsx_u8_t *serialized_configuration_p, const bsx_u32_t n_serialized_configuration_max,
-                                   bsx_u8_t *work_buffer_p, const bsx_u32_t n_work_buffer,
-                                   bsx_u32_t *n_serialized_configuration_p);
+bsx_return_t
+bsx_get_configuration(bsx_instance_t *const bsx_p, const bsx_u8_t config_set_id,
+		      bsx_u8_t *serialized_configuration_p,
+		      const bsx_u32_t n_serialized_configuration_max,
+		      bsx_u8_t *work_buffer_p, const bsx_u32_t n_work_buffer,
+		      bsx_u32_t *n_serialized_configuration_p);
 
 /*! @brief Update the state of the library instance partially or complete depending on the passed serialization
  *
@@ -247,10 +250,11 @@ bsx_return_t bsx_get_configuration(bsx_instance_t * const bsx_p, const bsx_u8_t 
  *
  * Further information is available in the integration guideline for \ref intguideInterfacesSetstate "update of the BSX state".
  */
-bsx_return_t bsx_set_state(bsx_instance_t * const bsx_p,
-                           bsx_u8_t *serialized_state_p, const bsx_u32_t n_serialized_state,
-                           bsx_u8_t *work_buffer_p, const bsx_u32_t n_work_buffer);
-
+bsx_return_t bsx_set_state(bsx_instance_t *const bsx_p,
+			   bsx_u8_t *serialized_state_p,
+			   const bsx_u32_t n_serialized_state,
+			   bsx_u8_t *work_buffer_p,
+			   const bsx_u32_t n_work_buffer);
 
 /*! @brief Retrieve the current state of the library for the given set identifier
  *
@@ -276,10 +280,11 @@ bsx_return_t bsx_set_state(bsx_instance_t * const bsx_p,
  *
  * Further information is available in the integration guideline for \ref intguideInterfacesGetstate "retrieval of the BSX state".
  */
-bsx_return_t bsx_get_state(bsx_instance_t * const bsx_p, const bsx_u8_t state_set_id,
-                           bsx_u8_t *serialized_state_p, const bsx_u32_t n_serialized_state_max,
-                           bsx_u8_t *work_buffer_p, const bsx_u32_t n_work_buffer,
-                           bsx_u32_t *n_serialized_state_p);
+bsx_return_t
+bsx_get_state(bsx_instance_t *const bsx_p, const bsx_u8_t state_set_id,
+	      bsx_u8_t *serialized_state_p,
+	      const bsx_u32_t n_serialized_state_max, bsx_u8_t *work_buffer_p,
+	      const bsx_u32_t n_work_buffer, bsx_u32_t *n_serialized_state_p);
 
 /*! @brief Reset all configuration settings and states to defaults
  *
@@ -292,7 +297,7 @@ bsx_return_t bsx_get_state(bsx_instance_t * const bsx_p, const bsx_u8_t state_se
  *
  * Further information is available in the integration guideline for \ref intguideInterfacesReset "reset of BSX".
  */
-bsx_return_t bsx_reset(bsx_instance_t * const bsx_p);
+bsx_return_t bsx_reset(bsx_instance_t *const bsx_p);
 
 /*! @brief Set the debug level of the library instance that determines which information can be dumped
  *
@@ -305,7 +310,9 @@ bsx_return_t bsx_reset(bsx_instance_t * const bsx_p);
  *
  * @note Re-configuration of the library might be required to enable certain debug levels.
  */
-bsx_return_t bsx_set_debug_level(bsx_instance_t *const bsx_p, const bsx_u32_t debug_level, void *const observation_p);
+bsx_return_t bsx_set_debug_level(bsx_instance_t *const bsx_p,
+				 const bsx_u32_t debug_level,
+				 void *const observation_p);
 
 /*! @brief Dump internal values of the library instance for analysis and debugging purposes
  *
@@ -320,8 +327,8 @@ bsx_return_t bsx_set_debug_level(bsx_instance_t *const bsx_p, const bsx_u32_t de
  *
  * @note A call to bsx_set_debug_level is required before useful information can be returned by this function.
  */
-bsx_return_t bsx_dump(bsx_instance_t * const bsx_p, bsx_u8_t *const output_p,
-                      const bsx_u32_t n_output, bsx_u32_t * const n_output_p);
+bsx_return_t bsx_dump(bsx_instance_t *const bsx_p, bsx_u8_t *const output_p,
+		      const bsx_u32_t n_output, bsx_u32_t *const n_output_p);
 #ifdef __cplusplus
 }
 #endif

@@ -19,52 +19,46 @@
 
 #include "axis_remap.h"
 
-struct axis_remap_m
-{
-    unsigned int rx_y;
-    unsigned int sx;
-    unsigned int sy;
-    unsigned int sz;
+struct axis_remap_m {
+	unsigned int rx_y;
+	unsigned int sx;
+	unsigned int sy;
+	unsigned int sz;
 };
 
 struct axis_remap_m axis_remap_matrix[8] = {
-        /* rx_y sx sy sz */
-        { 0, 0, 0, 0 }, /* P0 */
-        { 0, 1, 0, 1 }, /* P1 */
-        { 0, 1, 1, 0 }, /* P2 */
-        { 0, 0, 1, 1 }, /* P3 */
-        { 1, 1, 0, 0 }, /* P4 */
-        { 1, 0, 1, 0 }, /* P5 */
-        { 1, 0, 0, 1 }, /* P6 */
-        { 1, 1, 1, 1 }, /* P7 */
+	/* rx_y sx sy sz */
+	{ 0, 0, 0, 0 }, /* P0 */
+	{ 0, 1, 0, 1 }, /* P1 */
+	{ 0, 1, 1, 0 }, /* P2 */
+	{ 0, 0, 1, 1 }, /* P3 */
+	{ 1, 1, 0, 0 }, /* P4 */
+	{ 1, 0, 1, 0 }, /* P5 */
+	{ 1, 0, 0, 1 }, /* P6 */
+	{ 1, 1, 1, 1 }, /* P7 */
 };
 
 void hw_remap_sensor_data(float *px, float *py, float *pz, int position)
 {
-    float swap_tmp;
+	float swap_tmp;
 
-    if (axis_remap_matrix[position].rx_y)
-    {
-        swap_tmp = *px;
-        *px = *py;
-        *py = swap_tmp;
-    }
+	if (axis_remap_matrix[position].rx_y) {
+		swap_tmp = *px;
+		*px = *py;
+		*py = swap_tmp;
+	}
 
-    if (axis_remap_matrix[position].sx)
-    {
-        *px = 0 - *px;
-    }
+	if (axis_remap_matrix[position].sx) {
+		*px = 0 - *px;
+	}
 
-    if (axis_remap_matrix[position].sy)
-    {
-        *py = 0 - *py;
-    }
+	if (axis_remap_matrix[position].sy) {
+		*py = 0 - *py;
+	}
 
-    if (axis_remap_matrix[position].sz)
-    {
-        *pz = 0 - *pz;
-    }
+	if (axis_remap_matrix[position].sz) {
+		*pz = 0 - *pz;
+	}
 
-    return;
+	return;
 }
-

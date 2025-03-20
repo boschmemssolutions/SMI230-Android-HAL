@@ -26,37 +26,34 @@
 #include <sys/types.h>
 #include <stdint.h>
 
-struct list_node
-{
-    struct list_node *next;
-    void* p_data;
+struct list_node {
+	struct list_node *next;
+	void *p_data;
 };
 
-struct dlist_node
-{
-    struct dlist_node *prev;
-    struct dlist_node *next;
-    long data;
+struct dlist_node {
+	struct dlist_node *prev;
+	struct dlist_node *next;
+	long data;
 };
 
-class BoschSimpleList
-{
-public:
-    BoschSimpleList();
-    ~BoschSimpleList();
+class BoschSimpleList {
+    public:
+	BoschSimpleList();
+	~BoschSimpleList();
 
-    void set_uplimit(uint32_t limit);
-    int list_add_rear(void *pdata);
-    void list_get_headdata(void **ppdata);
-    int list_mount_rear(BoschSimpleList *list_for_mnt);
-    int list_clean();
+	void set_uplimit(uint32_t limit);
+	int list_add_rear(void *pdata);
+	void list_get_headdata(void **ppdata);
+	int list_mount_rear(BoschSimpleList *list_for_mnt);
+	int list_clean();
 
-    struct list_node *head;
-    struct list_node *tail;
-    uint32_t list_len;
+	struct list_node *head;
+	struct list_node *tail;
+	uint32_t list_len;
 
-private:
-    uint32_t uplimit;
+    private:
+	uint32_t uplimit;
 };
 
 #endif

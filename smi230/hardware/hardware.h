@@ -29,19 +29,18 @@ __BEGIN_DECLS
  * Value for the hw_module_t.tag field
  */
 
-#define MAKE_TAG_CONSTANT(A,B,C,D) (((A) << 24) | ((B) << 16) | ((C) << 8) | (D))
+#define MAKE_TAG_CONSTANT(A, B, C, D)                                          \
+	(((A) << 24) | ((B) << 16) | ((C) << 8) | (D))
 
 #define HARDWARE_MODULE_TAG MAKE_TAG_CONSTANT('H', 'W', 'M', 'T')
 #define HARDWARE_DEVICE_TAG MAKE_TAG_CONSTANT('H', 'W', 'D', 'T')
 
-#define HARDWARE_MAKE_API_VERSION(maj,min) \
-            ((((maj) & 0xff) << 8) | ((min) & 0xff))
+#define HARDWARE_MAKE_API_VERSION(maj, min) ((((maj)&0xff) << 8) | ((min)&0xff))
 
-#define HARDWARE_MAKE_API_VERSION_2(maj,min,hdr) \
-            ((((maj) & 0xff) << 24) | (((min) & 0xff) << 16) | ((hdr) & 0xffff))
+#define HARDWARE_MAKE_API_VERSION_2(maj, min, hdr)                             \
+	((((maj)&0xff) << 24) | (((min)&0xff) << 16) | ((hdr)&0xffff))
 #define HARDWARE_API_VERSION_2_MAJ_MIN_MASK 0xffff0000
 #define HARDWARE_API_VERSION_2_HEADER_MASK  0x0000ffff
-
 
 /*
  * The current HAL API version.
@@ -65,14 +64,18 @@ __BEGIN_DECLS
  *
  * Use this macro to set the hw_module_t.module_api_version field.
  */
-#define HARDWARE_MODULE_API_VERSION(maj,min) HARDWARE_MAKE_API_VERSION(maj,min)
-#define HARDWARE_MODULE_API_VERSION_2(maj,min,hdr) HARDWARE_MAKE_API_VERSION_2(maj,min,hdr)
+#define HARDWARE_MODULE_API_VERSION(maj, min)                                  \
+	HARDWARE_MAKE_API_VERSION(maj, min)
+#define HARDWARE_MODULE_API_VERSION_2(maj, min, hdr)                           \
+	HARDWARE_MAKE_API_VERSION_2(maj, min, hdr)
 
 /*
  * Use this macro to set the hw_device_t.version field
  */
-#define HARDWARE_DEVICE_API_VERSION(maj,min) HARDWARE_MAKE_API_VERSION(maj,min)
-#define HARDWARE_DEVICE_API_VERSION_2(maj,min,hdr) HARDWARE_MAKE_API_VERSION_2(maj,min,hdr)
+#define HARDWARE_DEVICE_API_VERSION(maj, min)                                  \
+	HARDWARE_MAKE_API_VERSION(maj, min)
+#define HARDWARE_DEVICE_API_VERSION_2(maj, min, hdr)                           \
+	HARDWARE_MAKE_API_VERSION_2(maj, min, hdr)
 
 struct hw_module_t;
 struct hw_module_methods_t;
@@ -84,10 +87,10 @@ struct hw_device_t;
  * followed by module specific information.
  */
 typedef struct hw_module_t {
-    /** tag must be initialized to HARDWARE_MODULE_TAG */
-    uint32_t tag;
+	/** tag must be initialized to HARDWARE_MODULE_TAG */
+	uint32_t tag;
 
-    /**
+	/**
      * The API version of the implemented module. The module owner is
      * responsible for updating the version when a module interface has
      * changed.
@@ -108,15 +111,15 @@ typedef struct hw_module_t {
      * versions as arguments and would be able to reject modules with
      * versions outside of the supplied range.
      */
-    uint16_t module_api_version;
+	uint16_t module_api_version;
 #define version_major module_api_version
-    /**
+	/**
      * version_major/version_minor defines are supplied here for temporary
      * source code compatibility. They will be removed in the next version.
      * ALL clients must convert to the new version format.
      */
 
-    /**
+	/**
      * The API version of the HAL module interface. This is meant to
      * version the hw_module_t, hw_module_methods_t, and hw_device_t
      * structures and definitions.
@@ -126,37 +129,37 @@ typedef struct hw_module_t {
      *
      * Presently, 0 is the only valid value.
      */
-    uint16_t hal_api_version;
+	uint16_t hal_api_version;
 #define version_minor hal_api_version
 
-    /** Identifier of module */
-    const char *id;
+	/** Identifier of module */
+	const char *id;
 
-    /** Name of this module */
-    const char *name;
+	/** Name of this module */
+	const char *name;
 
-    /** Author/owner/implementor of the module */
-    const char *author;
+	/** Author/owner/implementor of the module */
+	const char *author;
 
-    /** Modules methods */
-    struct hw_module_methods_t* methods;
+	/** Modules methods */
+	struct hw_module_methods_t *methods;
 
-    /** module's dso */
-    void* dso;
+	/** module's dso */
+	void *dso;
 
 #ifdef __LP64__
-    uint64_t reserved[32-7];
+	uint64_t reserved[32 - 7];
 #else
-    /** padding to 128 bytes, reserved for future use */
-    uint32_t reserved[32-7];
+	/** padding to 128 bytes, reserved for future use */
+	uint32_t reserved[32 - 7];
 #endif
 
 } hw_module_t;
 
 typedef struct hw_module_methods_t {
-    /** Open a specific device */
-    int (*open)(const struct hw_module_t* module, const char* id,
-            struct hw_device_t** device);
+	/** Open a specific device */
+	int (*open)(const struct hw_module_t *module, const char *id,
+		    struct hw_device_t **device);
 
 } hw_module_methods_t;
 
@@ -165,10 +168,10 @@ typedef struct hw_module_methods_t {
  * followed by module specific public methods and attributes.
  */
 typedef struct hw_device_t {
-    /** tag must be initialized to HARDWARE_DEVICE_TAG */
-    uint32_t tag;
+	/** tag must be initialized to HARDWARE_DEVICE_TAG */
+	uint32_t tag;
 
-    /**
+	/**
      * Version of the module-specific device API. This value is used by
      * the derived-module user to manage different device implementations.
      *
@@ -184,38 +187,38 @@ typedef struct hw_device_t {
      * This field is interpreted by the module user and is ignored by the
      * HAL interface itself.
      */
-    uint32_t version;
+	uint32_t version;
 
-    /** reference to the module this device belongs to */
-    struct hw_module_t* module;
+	/** reference to the module this device belongs to */
+	struct hw_module_t *module;
 
-    /** padding reserved for future use */
+	/** padding reserved for future use */
 #ifdef __LP64__
-    uint64_t reserved[12];
+	uint64_t reserved[12];
 #else
-    uint32_t reserved[12];
+	uint32_t reserved[12];
 #endif
 
-    /** Close this device */
-    int (*close)(struct hw_device_t* device);
+	/** Close this device */
+	int (*close)(struct hw_device_t *device);
 
 } hw_device_t;
 
 #ifdef __cplusplus
-#define TO_HW_DEVICE_T_OPEN(x) reinterpret_cast<struct hw_device_t**>(x)
+#define TO_HW_DEVICE_T_OPEN(x) reinterpret_cast<struct hw_device_t **>(x)
 #else
-#define TO_HW_DEVICE_T_OPEN(x) (struct hw_device_t**)(x)
+#define TO_HW_DEVICE_T_OPEN(x) (struct hw_device_t **)(x)
 #endif
 
 /**
  * Name of the hal_module_info
  */
-#define HAL_MODULE_INFO_SYM         HMI
+#define HAL_MODULE_INFO_SYM HMI
 
 /**
  * Name of the hal_module_info as a string
  */
-#define HAL_MODULE_INFO_SYM_AS_STR  "HMI"
+#define HAL_MODULE_INFO_SYM_AS_STR "HMI"
 
 /**
  * Get the module info associated with a module by id.
@@ -237,8 +240,8 @@ int hw_get_module(const char *id, const struct hw_module_t **module);
  * @return: 0 == success, <0 == error and *module == NULL
  */
 int hw_get_module_by_class(const char *class_id, const char *inst,
-                           const struct hw_module_t **module);
+			   const struct hw_module_t **module);
 
 __END_DECLS
 
-#endif  /* ANDROID_INCLUDE_HARDWARE_HARDWARE_H */
+#endif /* ANDROID_INCLUDE_HARDWARE_HARDWARE_H */

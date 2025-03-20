@@ -24,146 +24,132 @@
 
 BoschSimpleList::BoschSimpleList()
 {
-    head = NULL;
-    tail = NULL;
-    list_len = 0;
-    set_uplimit(DEFAULT_LIST_LEN);
+	head = NULL;
+	tail = NULL;
+	list_len = 0;
+	set_uplimit(DEFAULT_LIST_LEN);
 
-    return;
+	return;
 }
 
 BoschSimpleList::~BoschSimpleList()
 {
-    list_clean();
-    return;
+	list_clean();
+	return;
 }
 
 void BoschSimpleList::set_uplimit(uint32_t limit)
 {
-    if (0 == limit)
-    {
-        //at least 1 node can be stored
-        // to log something...
-        limit = 1;
-    }
-    uplimit = limit;
+	if (0 == limit) {
+		//at least 1 node can be stored
+		// to log something...
+		limit = 1;
+	}
+	uplimit = limit;
 }
 
 int BoschSimpleList::list_add_rear(void *pdata)
 {
-    struct list_node *nod;
-    void *del;
-    int ret = 0;
+	struct list_node *nod;
+	void *del;
+	int ret = 0;
 
-    nod = (struct list_node *) malloc(sizeof(struct list_node));
-    if (NULL == nod)
-    {
-        return -1;
-    }
+	nod = (struct list_node *)malloc(sizeof(struct list_node));
+	if (NULL == nod) {
+		return -1;
+	}
 
-    if (list_len == uplimit)
-    {
-        ret = -2;
-        PERR("list buffer is full, drop the oldest data");
-        list_get_headdata(&del);
-        free(del);
-    }
+	if (list_len == uplimit) {
+		ret = -2;
+		PERR("list buffer is full, drop the oldest data");
+		list_get_headdata(&del);
+		free(del);
+	}
 
-    nod->p_data = pdata;
-    nod->next = NULL;
-    if (NULL == head)
-    {
-        /*to be convenient, when running,
+	nod->p_data = pdata;
+	nod->next = NULL;
+	if (NULL == head) {
+		/*to be convenient, when running,
          tail point is allowed to have obsolete value.
          so use head point to judge if empty
          */
-        //first node added
-        tail = nod;
-        head = nod;
-    }
-    else
-    {
-        tail->next = nod;
-        tail = nod;
-    }
-    list_len++;
+		//first node added
+		tail = nod;
+		head = nod;
+	} else {
+		tail->next = nod;
+		tail = nod;
+	}
+	list_len++;
 
-    return ret;
+	return ret;
 }
 
 void BoschSimpleList::list_get_headdata(void **ppdata)
 {
-    struct list_node *cur;
+	struct list_node *cur;
 
-    if (0 == list_len)
-    {
-        *ppdata = NULL;
-        return;
-    }
+	if (0 == list_len) {
+		*ppdata = NULL;
+		return;
+	}
 
-    *ppdata = head->p_data;
-    cur = head;
-    head = head->next;
-    list_len--;
+	*ppdata = head->p_data;
+	cur = head;
+	head = head->next;
+	list_len--;
 
-    free(cur);
+	free(cur);
 
-    return;
+	return;
 }
 
 int BoschSimpleList::list_mount_rear(BoschSimpleList *list_for_mnt)
 {
-    void *pdata = NULL;
-    int ret = 0;
+	void *pdata = NULL;
+	int ret = 0;
 
-    if (NULL == list_for_mnt || 0 == list_for_mnt->list_len)
-    {
-        return 0;
-    }
+	if (NULL == list_for_mnt || 0 == list_for_mnt->list_len) {
+		return 0;
+	}
 
-    if (NULL == head)
-    {
-        /*to be convenient, when running,
+	if (NULL == head) {
+		/*to be convenient, when running,
          tail point is allowed to have obsolete value.
          so use head point to judge if empty
          */
-        //the destined list is yet empty
-        head = list_for_mnt->head;
-        tail = list_for_mnt->tail;
-    }
-    else
-    {
-        tail->next = list_for_mnt->head;
-        tail = list_for_mnt->tail;
-    }
-    list_len += list_for_mnt->list_len;
+		//the destined list is yet empty
+		head = list_for_mnt->head;
+		tail = list_for_mnt->tail;
+	} else {
+		tail->next = list_for_mnt->head;
+		tail = list_for_mnt->tail;
+	}
+	list_len += list_for_mnt->list_len;
 
-    list_for_mnt->head = NULL;
-    list_for_mnt->tail = NULL;
-    list_for_mnt->list_len = 0;
+	list_for_mnt->head = NULL;
+	list_for_mnt->tail = NULL;
+	list_for_mnt->list_len = 0;
 
-    //truncate to uplimit
-    while (list_len > uplimit)
-    {
-        ret = -1;
-        PERR("add too much, drop the oldest data");
-        list_get_headdata(&pdata);
-        free(pdata);
-    }
+	//truncate to uplimit
+	while (list_len > uplimit) {
+		ret = -1;
+		PERR("add too much, drop the oldest data");
+		list_get_headdata(&pdata);
+		free(pdata);
+	}
 
-    return ret;
+	return ret;
 }
 
 int BoschSimpleList::list_clean()
 {
-    void *pdata = NULL;
+	void *pdata = NULL;
 
-    while (list_len)
-    {
-        list_get_headdata(&pdata);
-        free(pdata);
-    }
+	while (list_len) {
+		list_get_headdata(&pdata);
+		free(pdata);
+	}
 
-    return 0;
+	return 0;
 }
-

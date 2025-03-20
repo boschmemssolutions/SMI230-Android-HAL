@@ -26,11 +26,11 @@
 /*! @brief Provides the enumeration containing module identifier 
  *
  * @{
- */ 
-#define BSX_MODULE_ID_INVALID   (0)
+ */
+#define BSX_MODULE_ID_INVALID (0)
 /*!
  * @}
- */ 
+ */
 
 #endif /* BSX_MODULE_IDENTIFIER_H_ */
 

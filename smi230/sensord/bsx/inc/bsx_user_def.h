@@ -29,8 +29,7 @@
  */
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 //#include "sensors.h" // locate here e.g. sensors.h from Android
@@ -45,6 +44,6 @@ extern "C"
 }
 #endif
 
-#endif  /* __BSX_USER_DEF_H__ */
+#endif /* __BSX_USER_DEF_H__ */
 
 /*!@}*/

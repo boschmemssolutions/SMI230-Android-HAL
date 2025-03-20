@@ -17,25 +17,24 @@
  * limitations under the License.
  */
 
-
 /*****************************************************************************/
-struct sensors_poll_context_t
-{
-    struct sensors_poll_device_1 device; // must be first
+struct sensors_poll_context_t {
+	struct sensors_poll_device_1 device; // must be first
 
-    sensors_poll_context_t();
-    //for cppcheck "noCopyConstructor"
-    sensors_poll_context_t(const sensors_poll_context_t & other);
-    ~sensors_poll_context_t();
-    int activate(int handle, int enabled);
-    int setDelay(int handle, int64_t ns);
-    int pollEvents(sensors_event_t* data, int count);
-    int batch(int handle, int flags, int64_t sampling_period_ns, int64_t max_report_latency_ns);
-    int flush(int handle);
+	sensors_poll_context_t();
+	//for cppcheck "noCopyConstructor"
+	sensors_poll_context_t(const sensors_poll_context_t &other);
+	~sensors_poll_context_t();
+	int activate(int handle, int enabled);
+	int setDelay(int handle, int64_t ns);
+	int pollEvents(sensors_event_t *data, int count);
+	int batch(int handle, int flags, int64_t sampling_period_ns,
+		  int64_t max_report_latency_ns);
+	int flush(int handle);
 #if defined(SENSORS_DEVICE_API_VERSION_1_4)
-    int inject_sensor_data(const sensors_event_t *data);
+	int inject_sensor_data(const sensors_event_t *data);
 #endif
 
-private:
-    BoschSensor *bosch_sensor;
+    private:
+	BoschSensor *bosch_sensor;
 };

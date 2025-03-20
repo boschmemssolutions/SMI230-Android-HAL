@@ -42,38 +42,38 @@ extern long long unsigned int sensors_mask;
 //#define SMI230_NEW_DATA
 #define SMI230_FIFO
 
-#define SOLUTION_MDOF       0
-#define SOLUTION_ECOMPASS   1
-#define SOLUTION_IMU        2
-#define SOLUTION_M4G        3
-#define SOLUTION_ACC        4
+#define SOLUTION_MDOF	  0
+#define SOLUTION_ECOMPASS 1
+#define SOLUTION_IMU	  2
+#define SOLUTION_M4G	  3
+#define SOLUTION_ACC	  4
 /* value is multiplexed with AP solutions, no conflicts*/
-#define SOLUTION_BMA4xy_android     0
-#define SOLUTION_BMA4xy_legacy      1
-#define SOLUTION_BMA4xy_default     2
+#define SOLUTION_BMA4xy_android 0
+#define SOLUTION_BMA4xy_legacy	1
+#define SOLUTION_BMA4xy_default 2
 
-#define ACC_CHIP_BMI160      0
-#define ACC_CHIP_BMA2x2      1
-#define ACC_CHIP_SMI230      2
-#define GYR_CHIP_BMI160      0
-#define GYR_CHIP_BMG160      1
-#define GYR_CHIP_SMI230      2
-#define MAG_CHIP_BMI160      0
-#define MAG_CHIP_AKM09912    1
-#define MAG_CHIP_BMM150      2
-#define MAG_CHIP_AKM09911    3
-#define MAG_CHIP_YAS537      4
-#define MAG_CHIP_YAS532      5
+#define ACC_CHIP_BMI160	  0
+#define ACC_CHIP_BMA2x2	  1
+#define ACC_CHIP_SMI230	  2
+#define GYR_CHIP_BMI160	  0
+#define GYR_CHIP_BMG160	  1
+#define GYR_CHIP_SMI230	  2
+#define MAG_CHIP_BMI160	  0
+#define MAG_CHIP_AKM09912 1
+#define MAG_CHIP_BMM150	  2
+#define MAG_CHIP_AKM09911 3
+#define MAG_CHIP_YAS537	  4
+#define MAG_CHIP_YAS532	  5
 
-#define ACC_CHIP_RANGCONF_2G   2
-#define ACC_CHIP_RANGCONF_4G   4
-#define ACC_CHIP_RANGCONF_8G   8
-#define ACC_CHIP_RANGCONF_16G  16
+#define ACC_CHIP_RANGCONF_2G  2
+#define ACC_CHIP_RANGCONF_4G  4
+#define ACC_CHIP_RANGCONF_8G  8
+#define ACC_CHIP_RANGCONF_16G 16
 
-#define GYRO_CHIP_RANGCONF_125DPS	125
-#define GYRO_CHIP_RANGCONF_250DPS	250
-#define GYRO_CHIP_RANGCONF_500DPS	500
-#define GYRO_CHIP_RANGCONF_1000DPS	1000
-#define GYRO_CHIP_RANGCONF_2000DPS	2000
+#define GYRO_CHIP_RANGCONF_125DPS  125
+#define GYRO_CHIP_RANGCONF_250DPS  250
+#define GYRO_CHIP_RANGCONF_500DPS  500
+#define GYRO_CHIP_RANGCONF_1000DPS 1000
+#define GYRO_CHIP_RANGCONF_2000DPS 2000
 
 #endif

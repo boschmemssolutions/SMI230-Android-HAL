@@ -33,7 +33,8 @@
  *   one-shot  :-1
  *   special   : 0, unless otherwise noted
  */
-#define SENSOR_MINDELAY_ONCHANGE 200000 //BSX4 library can only support minimum 200ms(200000us) delay
+#define SENSOR_MINDELAY_ONCHANGE                                               \
+	200000 //BSX4 library can only support minimum 200ms(200000us) delay
 #define SENSOR_MINDELAY_ONESHOT (-1)
 #define SENSOR_MINDELAY_SPECIAL 0
 
@@ -55,58 +56,53 @@
 /*for ON_CHANGE type, sample period is actually a delay period between events reporting
  * so define a default value here
  */
-#define SENSOR_MAXDELAY_ONCHANGE 1800000000 //BSX4 library support maximum 1800s(1800000000us) delay
+#define SENSOR_MAXDELAY_ONCHANGE                                               \
+	1800000000 //BSX4 library support maximum 1800s(1800000000us) delay
 
 #define BATCH_RSV_FRAME_COUNT 0
 #define BATCH_MAX_FRAME_COUNT 2000
 
-typedef struct
-{
-    uint32_t id;
-    union
-    {
-        struct
-        {
-            float x;
-            float y;
-            float z;
-        };
-        struct
-        {
-            float azimuth;
-            float pitch;
-            float roll;
-        }; //for ORIENTATION
-        float pressure;
-        float temperature;
-        float data[4]; // for RV, Game RV, ALSH debug raw data
-        struct
-        {
-            float x_uncalib;
-            float y_uncalib;
-            float z_uncalib;
-            float x_bias;
-            float y_bias;
-            float z_bias;
-        }; //for GYROSCOPE/MAGNETIC UNCALIBRATED
-        uint64_t step_counter;
-        struct
-        {
-            float heart_rate_bpm;
-            int8_t heart_rate_status;
-        };
-        float relative_humidity;
-        float ambient_temperature;
-        float light;
-        float proximity;
+typedef struct {
+	uint32_t id;
+	union {
+		struct {
+			float x;
+			float y;
+			float z;
+		};
+		struct {
+			float azimuth;
+			float pitch;
+			float roll;
+		}; //for ORIENTATION
+		float pressure;
+		float temperature;
+		float data[4]; // for RV, Game RV, ALSH debug raw data
+		struct {
+			float x_uncalib;
+			float y_uncalib;
+			float z_uncalib;
+			float x_bias;
+			float y_bias;
+			float z_bias;
+		}; //for GYROSCOPE/MAGNETIC UNCALIBRATED
+		uint64_t step_counter;
+		struct {
+			float heart_rate_bpm;
+			int8_t heart_rate_status;
+		};
+		float relative_humidity;
+		float ambient_temperature;
+		float light;
+		float proximity;
 
-        //ALSH private virtual sensor
-        int32_t power_consumption;
-        int32_t activity_wakeup;
-    };
+		//ALSH private virtual sensor
+		int32_t power_consumption;
+		int32_t activity_wakeup;
+	};
 
-    int8_t accuracy;
-    int64_t timestamp;
+	int8_t accuracy;
+	int64_t timestamp;
 } HW_DATA_UNION;
 
 /* this path must exist and user <system> must have permission to write to it */
@@ -114,11 +110,10 @@ typedef struct
 #define PATH_DIR_SENSOR_STORAGE "/data/misc/sensord_stor"
 #else
 #if defined(SENSORD_STOR)
-#define PATH_DIR_SENSOR_STORAGE SENSORD_STOR"/sensord_stor"
+#define PATH_DIR_SENSOR_STORAGE SENSORD_STOR "/sensord_stor"
 #else
 #define PATH_DIR_SENSOR_STORAGE "/root/My_C/sensord_stor"
 #endif
 #endif
-
 
 #endif
